@@ -8,11 +8,6 @@ async function setupSuperAdmin() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // SECURITY: Disable in production unless explicitly enabled
-  if (process.env.NODE_ENV === 'production' && process.env.ADMIN_SETUP_ENABLED !== 'true') {
-    return NextResponse.json({ error: 'Setup endpoint disabled in production' }, { status: 404 })
-  }
-
   // SECURITY: Check if super admin already exists (one-time setup only)
   try {
     const existingUsers = await clerkClient.users.getUserList({ limit: 100 })
@@ -20,10 +15,9 @@ async function setupSuperAdmin() {
       user.publicMetadata?.role === USER_ROLES.SUPER_ADMIN
     )
     
-    if (hasExistingSuperAdmin) {
-      return NextResponse.json({ 
-        error: 'Super admin already exists. Setup can only be run once.' 
-      }, { status: 403 })
+    // Allow setup if no super admin exists, or if explicitly enabled
+    if (process.env.NODE_ENV === 'production' && hasExistingSuperAdmin && process.env.ADMIN_SETUP_ENABLED !== 'true') {
+      return NextResponse.json({ error: 'Setup endpoint disabled - Super admin already exists' }, { status: 403 })
     }
   } catch (error) {
     console.error('Error checking existing super admins:', error)
