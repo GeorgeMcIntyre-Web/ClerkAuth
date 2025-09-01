@@ -16,7 +16,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <h1 className="text-xl font-bold text-blue-600 dark:text-blue-400">NitroAuth</h1>
+              <h1 className="text-xl font-bold text-blue-600 dark:text-blue-400">ClerkAuth</h1>
               <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">Centralized Authentication Hub</span>
             </div>
             <div className="flex items-center space-x-4">
@@ -40,7 +40,7 @@ export default function Home() {
       <main className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
         <div className="text-center">
           <h2 className="text-4xl font-extrabold text-gray-900 dark:text-white sm:text-5xl sm:tracking-tight lg:text-6xl">
-            NitroAuth
+            ClerkAuth
           </h2>
           <p className="max-w-2xl mt-5 mx-auto text-xl text-gray-500 dark:text-gray-400">
             Universal Authentication System - One login for all your applications. Secure, scalable, and seamless access management.

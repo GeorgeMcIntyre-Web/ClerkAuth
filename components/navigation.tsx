@@ -20,7 +20,7 @@ export function Navigation({ showAdminLink = false, currentPage }: NavigationPro
         <div className="flex justify-between h-16">
           <div className="flex items-center space-x-4">
             <Link href="/" className="text-xl font-bold text-blue-600 dark:text-blue-400">
-              NitroAuth
+              ClerkAuth
             </Link>
             {showAdminLink && (
               <Link 

@@ -266,7 +266,7 @@ export default function AdminPanel() {
           <div className="mb-8">
             <div className="flex justify-between items-center">
               <div>
-                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">NitroAuth Admin Panel</h1>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">ClerkAuth Admin Panel</h1>
                 <p className="text-gray-600 dark:text-gray-400 mt-2">Manage users, roles, and site access permissions</p>
               </div>
               <div className="flex space-x-3">

@@ -3,9 +3,13 @@ import { NextResponse } from 'next/server'
 import { USER_ROLES } from '@/lib/auth-config'
 import { generateAuthToken } from '@/lib/jwt'
 import { validateUserId, sanitizeString } from '@/lib/validation'
+import { withRateLimit, rateLimitConfigs, getClientIP } from '@/lib/rate-limit'
 
 export async function POST(req: Request) {
-  try {
+  const clientIP = getClientIP(req)
+  
+  return withRateLimit(rateLimitConfigs.auth, clientIP, async () => {
+    try {
     const { userId } = auth()
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -85,6 +89,7 @@ export async function POST(req: Request) {
       { status: 500 }
     )
   }
+  })
 }
 
 // Universal site access checker - works for ANY application without pre-configuration

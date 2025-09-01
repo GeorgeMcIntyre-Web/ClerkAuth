@@ -1,6 +1,7 @@
 import { auth, clerkClient } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 import { USER_ROLES, ROLE_PERMISSIONS } from '@/lib/auth-config'
+import { withRateLimit, rateLimitConfigs, getClientIP } from '@/lib/rate-limit'
 
 async function setupSuperAdmin() {
   const { userId } = auth()
@@ -44,26 +45,18 @@ async function setupSuperAdmin() {
   })
 }
 
-export async function GET() {
-  try {
-    return await setupSuperAdmin()
-  } catch (error) {
-    console.error('Error setting up super admin:', error)
-    return NextResponse.json(
-      { error: 'Failed to setup super admin' }, 
-      { status: 500 }
-    )
-  }
-}
-
-export async function POST() {
-  try {
-    return await setupSuperAdmin()
-  } catch (error) {
-    console.error('Error setting up super admin:', error)
-    return NextResponse.json(
-      { error: 'Failed to setup super admin' }, 
-      { status: 500 }
-    )
-  }
+export async function POST(req: Request) {
+  const clientIP = getClientIP(req)
+  
+  return withRateLimit(rateLimitConfigs.setup, clientIP, async () => {
+    try {
+      return await setupSuperAdmin()
+    } catch (error) {
+      console.error('Error setting up super admin:', error)
+      return NextResponse.json(
+        { error: 'Failed to setup super admin' }, 
+        { status: 500 }
+      )
+    }
+  })
 }

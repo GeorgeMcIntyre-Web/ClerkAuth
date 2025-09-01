@@ -15,7 +15,7 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'NitroAuth - Universal Authentication System',
+  title: 'ClerkAuth - Universal Authentication System',
   description: 'Universal authentication and authorization system',
 }
 

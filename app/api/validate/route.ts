@@ -2,8 +2,12 @@ import { NextResponse } from 'next/server'
 import { verifyAuthToken, isTokenExpired } from '@/lib/jwt'
 import { clerkClient } from '@clerk/nextjs/server'
 import { USER_ROLES } from '@/lib/auth-config'
+import { withRateLimit, rateLimitConfigs, getClientIP } from '@/lib/rate-limit'
 
 export async function POST(req: Request) {
+  const clientIP = getClientIP(req)
+  
+  return withRateLimit(rateLimitConfigs.validate, clientIP, async () => {
   try {
     const body = await req.json()
     const { auth_token, user_id, siteId, requestedPermissions } = body
@@ -110,6 +114,7 @@ export async function POST(req: Request) {
       { status: 500 }
     )
   }
+  })
 }
 
 // GET endpoint for external sites to check token validity quickly

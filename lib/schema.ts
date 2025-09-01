@@ -24,14 +24,44 @@ export const posts = pgTable('posts', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })
 
+export const sites = pgTable('sites', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: text('name').notNull(),
+  url: text('url').unique().notNull(),
+  description: text('description'),
+  category: text('category').notNull().$type<'premium' | 'standard' | 'admin'>(),
+  isActive: boolean('is_active').default(true),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+})
+
+export const systemConfig = pgTable('system_config', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  key: text('key').unique().notNull(),
+  value: text('value').notNull(),
+  description: text('description'),
+  category: text('category').notNull().$type<'rate_limiting' | 'security' | 'general'>(),
+  isActive: boolean('is_active').default(true),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+})
+
 // Zod schemas for validation
 export const insertUserSchema = createInsertSchema(users)
 export const selectUserSchema = createSelectSchema(users)
 export const insertPostSchema = createInsertSchema(posts)
 export const selectPostSchema = createSelectSchema(posts)
+export const insertSiteSchema = createInsertSchema(sites)
+export const selectSiteSchema = createSelectSchema(sites)
+export const insertSystemConfigSchema = createInsertSchema(systemConfig)
+export const selectSystemConfigSchema = createSelectSchema(systemConfig)
 
 // Types
 export type User = InferSelectModel<typeof users>
 export type NewUser = InferInsertModel<typeof users>
 export type Post = InferSelectModel<typeof posts>
 export type NewPost = InferInsertModel<typeof posts>
+export type Site = InferSelectModel<typeof sites>
+export type NewSite = InferInsertModel<typeof sites>
+export type SystemConfig = InferSelectModel<typeof systemConfig>
+export type NewSystemConfig = InferInsertModel<typeof systemConfig>

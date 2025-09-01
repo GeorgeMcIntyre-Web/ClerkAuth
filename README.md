@@ -1,10 +1,10 @@
-# NitroAuth - Universal Authentication Hub
+# ClerkAuth - Universal Authentication Hub
 
 🚀 **Centralized authentication system for multiple websites with enterprise-grade security**
 
-## What is NitroAuth?
+## What is ClerkAuth?
 
-NitroAuth is a universal authentication hub that allows you to manage user access across multiple websites from a single control panel. Users authenticate once and gain access to all their authorized sites with secure JWT tokens.
+ClerkAuth is a universal authentication hub that allows you to manage user access across multiple websites from a single control panel. Users authenticate once and gain access to all their authorized sites with secure JWT tokens.
 
 ## Key Features
 
@@ -16,18 +16,18 @@ NitroAuth is a universal authentication hub that allows you to manage user acces
 
 ## Quick Start
 
-### For NitroAuth Administrators
+### For ClerkAuth Administrators
 
-1. **Deploy NitroAuth**
+1. **Deploy ClerkAuth**
    ```bash
    git clone <repository>
-   cd nitroauth
+   cd clerkauth
    npm install
    vercel deploy --prod
    ```
 
 2. **Initial Setup**
-   - Visit `https://your-nitroauth-domain.com/api/admin/setup`
+   - Visit `https://your-clerkauth-domain.com/api/admin/setup`
    - First user becomes Super Admin
    - Configure additional users through admin panel
 
@@ -38,11 +38,11 @@ NitroAuth is a universal authentication hub that allows you to manage user acces
 
 ### For Website Developers
 
-Integrate any website with NitroAuth in 3 steps:
+Integrate any website with ClerkAuth in 3 steps:
 
 1. **Redirect** unauthenticated users:
    ```javascript
-   const authUrl = `https://nitroauth.com/authorize?site=myapp&redirect_url=${callbackUrl}`
+   const authUrl = `https://clerkauth.com/authorize?site=myapp&redirect_url=${callbackUrl}`
    window.location.href = authUrl
    ```
 
@@ -53,7 +53,7 @@ Integrate any website with NitroAuth in 3 steps:
 
 3. **Validate token** server-side:
    ```javascript
-   const response = await fetch('https://nitroauth.com/api/validate', {
+   const response = await fetch('https://clerkauth.com/api/validate', {
      method: 'POST',
      headers: { 'Content-Type': 'application/json' },
      body: JSON.stringify({ auth_token: token, user_id: userId })
@@ -64,7 +64,7 @@ Integrate any website with NitroAuth in 3 steps:
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Website A     │───▶│   NitroAuth     │───▶│   Clerk Auth    │
+│   Website A     │───▶│   ClerkAuth     │───▶│   Clerk Auth    │
 │   Website B     │    │                 │    │                 │
 │   Website C     │    │ - Authorization │    │ - User Storage  │
 │   ...           │    │ - Token Issue   │    │ - Sessions      │
@@ -97,7 +97,7 @@ GUEST        → No default access (must be granted specific permissions)
 
 ## Supported Integrations
 
-NitroAuth works with **any technology stack**:
+ClerkAuth works with **any technology stack**:
 
 - ✅ **Next.js** (App Router & Pages Router)
 - ✅ **React** (SPA applications)
@@ -119,7 +119,7 @@ NitroAuth works with **any technology stack**:
 ## Documentation
 
 ### For Administrators
-- **[NitroAuth Developer Guide](DEVELOPER_GUIDE_NITROAUTH.md)** - Complete setup and administration guide
+- **[ClerkAuth Developer Guide](DEVELOPER_GUIDE_CLERKAUTH.md)** - Complete setup and administration guide
 - **[Universal Integration Guide](UNIVERSAL_INTEGRATION.md)** - Technical integration overview
 
 ### For Website Developers
@@ -130,7 +130,7 @@ NitroAuth works with **any technology stack**:
 
 ### Authorization
 ```http
-POST https://nitroauth.com/api/authorize
+POST https://clerkauth.com/api/authorize
 {
   "requestedSite": "myapp",
   "redirectUrl": "https://myapp.com/callback"
@@ -139,7 +139,7 @@ POST https://nitroauth.com/api/authorize
 
 ### Token Validation
 ```http
-POST https://nitroauth.com/api/validate
+POST https://clerkauth.com/api/validate
 {
   "auth_token": "JWT_TOKEN",
   "user_id": "USER_ID"
@@ -167,7 +167,7 @@ NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/dashboard
 ```bash
 # Clone repository
 git clone <repository>
-cd nitroauth
+cd clerkauth
 
 # Install dependencies
 npm install
@@ -204,7 +204,7 @@ npm run build
 npm run start
 
 # Or use PM2 for production
-pm2 start npm --name "nitroauth" -- start
+pm2 start npm --name "clerkauth" -- start
 ```
 
 ## Getting Started Examples
@@ -225,7 +225,7 @@ export async function middleware(request: NextRequest) {
   const userId = request.cookies.get('user_id')?.value
 
   if (!token || !(await validateToken(token, userId))) {
-    const authUrl = `https://nitroauth.com/authorize?site=myapp&redirect_url=${encodeURIComponent(request.url)}`
+    const authUrl = `https://clerkauth.com/authorize?site=myapp&redirect_url=${encodeURIComponent(request.url)}`
     return NextResponse.redirect(authUrl)
   }
 
@@ -234,7 +234,7 @@ export async function middleware(request: NextRequest) {
 
 async function validateToken(token: string, userId: string): Promise<boolean> {
   try {
-    const response = await fetch('https://nitroauth.com/api/validate', {
+    const response = await fetch('https://clerkauth.com/api/validate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ auth_token: token, user_id: userId })
@@ -260,9 +260,9 @@ export const config = {
 
 **functions.php:**
 ```php
-class NitroAuth {
+class ClerkAuth {
     private $site_name = 'myblog';
-    private $nitroauth_url = 'https://nitroauth.com';
+    private $clerkauth_url = 'https://clerkauth.com';
     
     public function __construct() {
         add_action('init', [$this, 'handle_auth_callback']);
@@ -272,8 +272,8 @@ class NitroAuth {
     public function check_authentication() {
         if (!$this->requires_auth()) return;
         
-        $token = $_COOKIE['nitroauth_token'] ?? null;
-        $user_id = $_COOKIE['nitroauth_user_id'] ?? null;
+        $token = $_COOKIE['clerkauth_token'] ?? null;
+        $user_id = $_COOKIE['clerkauth_user_id'] ?? null;
         
         if (!$token || !$this->validate_token($token, $user_id)) {
             $this->redirect_to_auth();
@@ -281,7 +281,7 @@ class NitroAuth {
     }
     
     private function validate_token($token, $user_id) {
-        $response = wp_remote_post($this->nitroauth_url . '/api/validate', [
+        $response = wp_remote_post($this->clerkauth_url . '/api/validate', [
             'headers' => ['Content-Type' => 'application/json'],
             'body' => json_encode(['auth_token' => $token, 'user_id' => $user_id])
         ]);
@@ -294,7 +294,7 @@ class NitroAuth {
     
     private function redirect_to_auth() {
         $redirect_url = urlencode($this->get_current_url());
-        $auth_url = $this->nitroauth_url . '/authorize?site=' . $this->site_name . '&redirect_url=' . $redirect_url;
+        $auth_url = $this->clerkauth_url . '/authorize?site=' . $this->site_name . '&redirect_url=' . $redirect_url;
         wp_redirect($auth_url);
         exit;
     }
@@ -304,12 +304,12 @@ class NitroAuth {
     }
 }
 
-new NitroAuth();
+new ClerkAuth();
 ```
 
 ## Monitoring & Analytics
 
-NitroAuth provides comprehensive logging for:
+ClerkAuth provides comprehensive logging for:
 
 - **Authentication Events**: Successful/failed logins
 - **Authorization Requests**: Site access attempts
