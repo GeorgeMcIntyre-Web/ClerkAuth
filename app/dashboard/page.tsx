@@ -16,7 +16,6 @@ export default async function Dashboard() {
     redirect('/sign-in')
   }
 
-  // Check if user is admin (simplified - no database dependency)
   const userRole = (user.publicMetadata?.role as string) || USER_ROLES.GUEST
   const isAdmin = userRole === USER_ROLES.ADMIN || userRole === USER_ROLES.SUPER_ADMIN
 
@@ -87,7 +86,7 @@ export default async function Dashboard() {
                 <div>
                   <dt className="text-sm font-medium text-gray-500">Member since</dt>
                   <dd className="text-sm text-gray-900">
-                    {new Date(user?.createdAt || 0).toLocaleDateString()}
+                    {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Unknown'}
                   </dd>
                 </div>
               </dl>
@@ -113,20 +112,14 @@ export default async function Dashboard() {
                 )}
                 
                 {isAdmin && (
-                  <>
+                  <div>
                     <Link 
                       href="/admin"
                       className="block w-full text-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700"
                     >
                       Manage Users & Permissions
                     </Link>
-                    <button 
-                      onClick={() => window.open('/api/admin/setup', '_blank')}
-                      className="block w-full text-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 hover:bg-gray-50"
-                    >
-                      Setup Super Admin (First Time)
-                    </button>
-                  </>
+                  </div>
                 )}
                 
                 <div className="text-center pt-4">
@@ -134,29 +127,23 @@ export default async function Dashboard() {
                     Your current role: <strong>{userRole.replace('_', ' ')}</strong>
                   </p>
                   {userRole === USER_ROLES.GUEST && (
-                    <p className="text-xs text-red-600 mt-1">
-                      Limited access - contact admin for promotion
-                    </p>
+                    <div>
+                      <p className="text-xs text-red-600 mt-1">
+                        Limited access - contact admin for promotion
+                      </p>
+                      <a 
+                        href="/setup-admin" 
+                        className="text-xs text-blue-600 hover:text-blue-800 underline"
+                      >
+                        First time? Setup admin access
+                      </a>
+                    </div>
                   )}
                 </div>
               </div>
             </div>
           </div>
         </div>
-
-        {/* Setup Instructions */}
-        {userRole === USER_ROLES.GUEST && (
-          <div className="mt-8 bg-yellow-50 border-l-4 border-yellow-400 p-4">
-            <div className="flex">
-              <div className="ml-3">
-                <p className="text-sm text-yellow-800">
-                  <strong>First time setup?</strong> Visit <a href="/setup-admin" className="text-blue-600 hover:text-blue-800 underline">/setup-admin</a> to make yourself Super Admin,
-                  then return to this dashboard to access the Admin Panel.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
       </main>
     </div>
   )
