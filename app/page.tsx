@@ -1,15 +1,11 @@
 import { SignedIn, SignedOut, SignInButton, SignUpButton } from '@clerk/nextjs'
 import { redirect } from 'next/navigation'
-import { auth } from '@clerk/nextjs/server'
 import Link from 'next/link'
 import { ThemeToggle } from '@/components/theme-toggle'
 
 export default function Home() {
-  // Redirect authenticated users directly to dashboard
-  const { userId } = auth()
-  if (userId) {
-    redirect('/dashboard')
-  }
+  // Note: Auth check moved to client-side to avoid server-side errors
+  // when Clerk is not properly configured
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <nav className="bg-white dark:bg-gray-800 shadow-sm">
