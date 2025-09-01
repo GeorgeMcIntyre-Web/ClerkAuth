@@ -291,7 +291,7 @@ export default function AdminPanel() {
                       onClick={() => {
                         setSelectedUser({
                           ...selectedUser,
-                          siteAccess: [SITE_PERMISSIONS.PREMIUM_CONTENT, SITE_PERMISSIONS.MAIN_DASHBOARD]
+                          siteAccess: [SITE_PERMISSIONS.HOUSE_ATREIDES, SITE_PERMISSIONS.PREMIUM_SITES]
                         })
                       }}
                       className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium hover:bg-yellow-200"
@@ -302,7 +302,7 @@ export default function AdminPanel() {
                       onClick={() => {
                         setSelectedUser({
                           ...selectedUser,
-                          siteAccess: [SITE_PERMISSIONS.MAIN_DASHBOARD]
+                          siteAccess: [SITE_PERMISSIONS.STANDARD_SITES]
                         })
                       }}
                       className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium hover:bg-blue-200"
@@ -339,15 +339,15 @@ export default function AdminPanel() {
                   <h4 className="font-medium text-gray-900 mb-3">Individual Site Permissions</h4>
                   <div className="grid grid-cols-1 gap-3 max-h-64 overflow-y-auto">
                     {[
-                      { key: SITE_PERMISSIONS.MAIN_DASHBOARD, label: '📊 Main Dashboard', desc: 'Basic dashboard access' },
-                      { key: SITE_PERMISSIONS.PREMIUM_CONTENT, label: '🏠 House Atreides & Premium Sites', desc: 'Access to premium external sites' },
-                      { key: SITE_PERMISSIONS.ANALYTICS, label: '📈 Analytics Dashboard', desc: 'View site analytics and reports' },
-                      { key: SITE_PERMISSIONS.CRM, label: '👥 Customer Management', desc: 'CRM and customer data access' },
-                      { key: SITE_PERMISSIONS.INVENTORY, label: '📦 Inventory Management', desc: 'Product and inventory systems' },
-                      { key: SITE_PERMISSIONS.BILLING, label: '💰 Billing & Payments', desc: 'Financial and billing systems' },
-                      { key: SITE_PERMISSIONS.REPORTS, label: '📋 Advanced Reports', desc: 'Detailed reporting tools' },
-                      { key: SITE_PERMISSIONS.API_ACCESS, label: '🔧 API Access', desc: 'Direct API and developer tools' },
-                      { key: SITE_PERMISSIONS.SUPPORT_TOOLS, label: '🎧 Support Tools', desc: 'Customer support systems' }
+                      { key: SITE_PERMISSIONS.STANDARD_SITES, label: '📊 Standard Sites', desc: 'Basic site access' },
+                      { key: SITE_PERMISSIONS.PREMIUM_SITES, label: '⭐ Premium Sites', desc: 'Access to premium external sites' },
+                      { key: SITE_PERMISSIONS.HOUSE_ATREIDES, label: '🏠 House Atreides', desc: 'Direct access to houseatreides.space' },
+                      { key: SITE_PERMISSIONS.ALL_SITES, label: '🌐 All Sites Access', desc: 'Universal access to all sites' },
+                      { key: SITE_PERMISSIONS.NITROAUTH_ADMIN, label: '⚙️ NitroAuth Admin', desc: 'Admin panel access' },
+                      { key: SITE_PERMISSIONS.ANALYTICS_SITE, label: '📈 Analytics Site', desc: 'Analytics dashboard access' },
+                      { key: SITE_PERMISSIONS.CRM_SITE, label: '👥 CRM Site', desc: 'Customer management access' },
+                      { key: SITE_PERMISSIONS.CUSTOM_URL_1, label: '🔗 Custom Site 1', desc: 'Custom site access' },
+                      { key: SITE_PERMISSIONS.CUSTOM_URL_2, label: '🔗 Custom Site 2', desc: 'Custom site access' }
                     ].map((item) => (
                       <label key={item.key} className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-gray-50">
                         <input
