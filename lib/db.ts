@@ -19,6 +19,6 @@ export const getDb = () => {
   return dbInstance
 }
 
-// For build compatibility
-export const db = process.env.DATABASE_URL ? getDb() : null
+// For build compatibility - don't initialize during build
+export const db = getDb
 export type Database = ReturnType<typeof getDb>
