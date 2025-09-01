@@ -1,6 +1,6 @@
 import { auth } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import { getDb } from '@/lib/db'
 import { users, posts, insertPostSchema } from '@/lib/schema'
 import { eq } from 'drizzle-orm'
 
@@ -12,6 +12,8 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const db = getDb()
+    
     // Get user from database
     const dbUser = await db
       .select()
@@ -48,13 +50,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const db = getDb()
     const body = await request.json()
     
     // Validate input
+    if (!body.title || typeof body.title !== 'string' || body.title.trim().length === 0) {
+      return NextResponse.json({ error: 'Title is required and must be a non-empty string' }, { status: 400 })
+    }
+
     const validatedData = insertPostSchema.parse({
-      title: body.title,
-      content: body.content,
-      published: body.published ?? false,
+      title: body.title.trim(),
+      content: body.content?.trim() || null,
+      published: Boolean(body.published),
     })
 
     // Get user from database
@@ -79,6 +86,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json(newPost[0], { status: 201 })
   } catch (error) {
+    if (error instanceof Error && error.name === 'ZodError') {
+      return NextResponse.json({ error: 'Invalid input data', details: error.message }, { status: 400 })
+    }
     console.error('Error creating post:', error)
     return NextResponse.json(
       { error: 'Internal server error' },

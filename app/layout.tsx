@@ -7,6 +7,17 @@ const inter = Inter({ subsets: ['latin'] })
 export const metadata = {
   title: 'Vercel + Neon + Clerk Template',
   description: 'A full-stack template with authentication and database',
+  robots: 'index, follow',
+  openGraph: {
+    title: 'Vercel + Neon + Clerk Template',
+    description: 'A full-stack template with authentication and database',
+    type: 'website',
+  },
+}
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
 }
 
 export default function RootLayout({

@@ -1,6 +1,6 @@
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
-import { db } from '@/lib/db'
+import { getDb } from '@/lib/db'
 import { users } from '@/lib/schema'
 import { eq } from 'drizzle-orm'
 
@@ -12,6 +12,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const db = getDb()
     const user = await currentUser()
     const dbUser = await db
       .select()
@@ -49,16 +50,21 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const db = getDb()
     const body = await request.json()
-    const { firstName, lastName } = body
+    
+    // Validate input
+    if (!body.firstName && !body.lastName) {
+      return NextResponse.json({ error: 'At least one field (firstName or lastName) is required' }, { status: 400 })
+    }
+
+    const updateData: any = { updatedAt: new Date() }
+    if (body.firstName !== undefined) updateData.firstName = body.firstName
+    if (body.lastName !== undefined) updateData.lastName = body.lastName
 
     const updatedUser = await db
       .update(users)
-      .set({
-        firstName,
-        lastName,
-        updatedAt: new Date(),
-      })
+      .set(updateData)
       .where(eq(users.clerkId, userId))
       .returning()
 

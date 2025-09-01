@@ -1,7 +1,7 @@
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
-import { db } from '@/lib/db'
-import { users, posts } from '@/lib/schema'
+import { getDb } from '@/lib/db'
+import { users, posts, type Post } from '@/lib/schema'
 import { eq } from 'drizzle-orm'
 import { UserButton } from '@clerk/nextjs'
 import Link from 'next/link'
@@ -14,6 +14,7 @@ export default async function Dashboard() {
   }
 
   const user = await currentUser()
+  const db = getDb()
   
   // Get or create user in database
   let dbUser = await db.select().from(users).where(eq(users.clerkId, userId)).limit(1)
@@ -109,7 +110,7 @@ export default async function Dashboard() {
                   </p>
                 ) : (
                   <div className="space-y-4">
-                    {userPosts.map((post) => (
+                    {userPosts.map((post: Post) => (
                       <div key={post.id} className="border border-gray-200 rounded-lg p-4">
                         <h4 className="font-semibold text-gray-900">{post.title}</h4>
                         {post.content && (

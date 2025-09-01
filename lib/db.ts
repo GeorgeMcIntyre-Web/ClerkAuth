@@ -2,11 +2,23 @@ import { drizzle } from 'drizzle-orm/neon-http'
 import { neon } from '@neondatabase/serverless'
 import * as schema from './schema'
 
-if (!process.env.DATABASE_URL) {
-  throw new Error('DATABASE_URL is not defined')
+let dbInstance: ReturnType<typeof drizzle> | null = null
+
+export const getDb = () => {
+  if (!dbInstance) {
+    const databaseUrl = process.env.DATABASE_URL
+    
+    if (!databaseUrl) {
+      throw new Error('DATABASE_URL is not defined')
+    }
+
+    const sql = neon(databaseUrl)
+    dbInstance = drizzle(sql, { schema })
+  }
+  
+  return dbInstance
 }
 
-const sql = neon(process.env.DATABASE_URL)
-export const db = drizzle(sql, { schema })
-
-export type Database = typeof db
+// For build compatibility
+export const db = process.env.DATABASE_URL ? getDb() : null
+export type Database = ReturnType<typeof getDb>
