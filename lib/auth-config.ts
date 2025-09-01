@@ -69,24 +69,27 @@ export const SITE_URL_MAPPING: Record<string, string> = {
   // Add more as needed
 }
 
-// Site URLs mapping
+// Site URLs mapping - maps permissions to their URLs
 export const SITE_URLS: Record<SitePermission, string> = {
-  [SITE_PERMISSIONS.ADMIN_DASHBOARD]: 'https://admin.nitroauth.com',
-  [SITE_PERMISSIONS.USER_MANAGEMENT]: 'https://users.nitroauth.com', 
-  [SITE_PERMISSIONS.ANALYTICS]: 'https://analytics.nitroauth.com',
-  [SITE_PERMISSIONS.CRM_SYSTEM]: 'https://crm.nitroauth.com',
-  [SITE_PERMISSIONS.ACCOUNTING]: 'https://accounting.nitroauth.com',
-  [SITE_PERMISSIONS.PROJECT_MGMT]: 'https://projects.nitroauth.com',
-  [SITE_PERMISSIONS.PROFILE]: 'https://profile.nitroauth.com',
-  [SITE_PERMISSIONS.BASIC_TOOLS]: 'https://tools.nitroauth.com',
-  [SITE_PERMISSIONS.PREMIUM_TOOLS]: 'https://premium.nitroauth.com'
+  [SITE_PERMISSIONS.NITROAUTH_ADMIN]: 'https://nitroauth.com/admin',
+  [SITE_PERMISSIONS.ALL_SITES]: 'https://nitroauth.com/dashboard',
+  [SITE_PERMISSIONS.PREMIUM_SITES]: 'https://nitroauth.com/premium',
+  [SITE_PERMISSIONS.STANDARD_SITES]: 'https://nitroauth.com/dashboard',
+  [SITE_PERMISSIONS.HOUSE_ATREIDES]: 'https://www.houseatreides.space',
+  [SITE_PERMISSIONS.ANALYTICS_SITE]: 'https://analytics.example.com',
+  [SITE_PERMISSIONS.CRM_SITE]: 'https://crm.example.com',
+  [SITE_PERMISSIONS.CUSTOM_URL_1]: 'https://custom1.example.com',
+  [SITE_PERMISSIONS.CUSTOM_URL_2]: 'https://custom2.example.com',
+  [SITE_PERMISSIONS.CUSTOM_URL_3]: 'https://custom3.example.com',
+  [SITE_PERMISSIONS.CUSTOM_URL_4]: 'https://custom4.example.com',
+  [SITE_PERMISSIONS.CUSTOM_URL_5]: 'https://custom5.example.com'
 }
 
 // Default redirect based on role
 export const DEFAULT_REDIRECTS: Record<UserRole, string> = {
-  [USER_ROLES.SUPER_ADMIN]: SITE_URLS[SITE_PERMISSIONS.ADMIN_DASHBOARD],
-  [USER_ROLES.ADMIN]: SITE_URLS[SITE_PERMISSIONS.ADMIN_DASHBOARD],
-  [USER_ROLES.PREMIUM]: SITE_URLS[SITE_PERMISSIONS.PREMIUM_TOOLS],
-  [USER_ROLES.STANDARD]: SITE_URLS[SITE_PERMISSIONS.BASIC_TOOLS],
-  [USER_ROLES.GUEST]: SITE_URLS[SITE_PERMISSIONS.PROFILE]
+  [USER_ROLES.SUPER_ADMIN]: SITE_URLS[SITE_PERMISSIONS.NITROAUTH_ADMIN],
+  [USER_ROLES.ADMIN]: SITE_URLS[SITE_PERMISSIONS.NITROAUTH_ADMIN],
+  [USER_ROLES.PREMIUM]: SITE_URLS[SITE_PERMISSIONS.PREMIUM_SITES],
+  [USER_ROLES.STANDARD]: SITE_URLS[SITE_PERMISSIONS.STANDARD_SITES],
+  [USER_ROLES.GUEST]: SITE_URLS[SITE_PERMISSIONS.STANDARD_SITES]
 }
