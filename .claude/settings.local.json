@@ -19,7 +19,8 @@
       "Bash(vercel:*)",
       "Bash(git gc:*)",
       "Bash(npm cache clean:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(timeout 30s npm run build:*)"
     ],
     "deny": [],
     "ask": []
