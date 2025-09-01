@@ -131,11 +131,11 @@ export default function DynamicAccessManager() {
           <div className="mb-8">
             <div className="flex justify-between items-center">
               <div>
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Universal Access Manager</h1>
-              <p className="text-gray-600 dark:text-gray-400 mt-2">Grant access to any application dynamically</p>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Universal Access Manager</h1>
+                <p className="text-gray-600 dark:text-gray-400 mt-2">Grant access to any application dynamically</p>
+              </div>
             </div>
           </div>
-        </div>
 
         {/* Quick Grant Access Form */}
         <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6 mb-8">
@@ -303,6 +303,7 @@ export default function DynamicAccessManager() {
                 </ul>
               </div>
             </div>
+          </div>
           </div>
         </div>
       </div>

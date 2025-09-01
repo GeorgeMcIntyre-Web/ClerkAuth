@@ -292,25 +292,25 @@ export default function AdminPanel() {
               {users.filter(u => u.role === USER_ROLES.ADMIN || u.role === USER_ROLES.SUPER_ADMIN).length}
             </p>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-sm font-medium text-gray-500">Premium Users</h3>
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Premium Users</h3>
             <p className="text-3xl font-bold text-yellow-600">
               {users.filter(u => u.role === USER_ROLES.PREMIUM).length}
             </p>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-sm font-medium text-gray-500">Standard Users</h3>
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Standard Users</h3>
             <p className="text-3xl font-bold text-green-600">
               {users.filter(u => u.role === USER_ROLES.STANDARD).length}
             </p>
           </div>
         </div>
 
-        {/* Users Table */}
-        <div className="bg-white shadow rounded-lg overflow-hidden">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">All Users</h2>
-          </div>
+          {/* Users Table */}
+          <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
+            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">All Users</h2>
+            </div>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
@@ -517,6 +517,7 @@ export default function AdminPanel() {
             </div>
           </div>
         )}
+        </div>
       </div>
     </div>
   )
