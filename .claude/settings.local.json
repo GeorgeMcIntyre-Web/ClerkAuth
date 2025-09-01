@@ -20,7 +20,8 @@
       "Bash(git gc:*)",
       "Bash(npm cache clean:*)",
       "Bash(npx tsc:*)",
-      "Bash(timeout 30s npm run build:*)"
+      "Bash(timeout 30s npm run build:*)",
+      "Bash(git rm:*)"
     ],
     "deny": [],
     "ask": []
