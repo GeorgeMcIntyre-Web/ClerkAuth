@@ -20,9 +20,15 @@ interface UserData {
 export default function AdminPanel() {
   const { user, isLoaded } = useUser()
   const [users, setUsers] = useState<UserData[]>([])
+  const [filteredUsers, setFilteredUsers] = useState<UserData[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null)
   const [showPermissionModal, setShowPermissionModal] = useState(false)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [roleFilter, setRoleFilter] = useState('')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [usersPerPage] = useState(10)
+  const [showAuditLog, setShowAuditLog] = useState(false)
 
   // Check if current user is admin
   useEffect(() => {
@@ -45,6 +51,7 @@ export default function AdminPanel() {
       if (response.ok) {
         const userData = await response.json()
         setUsers(userData)
+        setFilteredUsers(userData)
       }
     } catch (error) {
       console.error('Failed to fetch users:', error)
@@ -53,56 +60,190 @@ export default function AdminPanel() {
     }
   }
 
+  // Filter and search users
+  useEffect(() => {
+    let filtered = users
+    
+    // Apply search filter
+    if (searchTerm) {
+      filtered = filtered.filter(user => 
+        user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        `${user.firstName} ${user.lastName}`.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    }
+    
+    // Apply role filter
+    if (roleFilter) {
+      filtered = filtered.filter(user => user.role === roleFilter)
+    }
+    
+    setFilteredUsers(filtered)
+    setCurrentPage(1) // Reset to first page when filters change
+  }, [users, searchTerm, roleFilter])
+
   const updateUserRole = async (userId: string, newRole: string) => {
+    // Security: Prevent self-modification
+    if (user?.id === userId) {
+      alert('🚫 You cannot modify your own role for security reasons.')
+      return
+    }
+    
+    // Find the target user
+    const targetUser = users.find(u => u.clerkId === userId)
+    if (!targetUser) return
+    
+    // Security: Prevent demoting the last super admin
+    const currentUserRole = user?.publicMetadata?.role as string
+    const superAdmins = users.filter(u => u.role === USER_ROLES.SUPER_ADMIN)
+    
+    if (targetUser.role === USER_ROLES.SUPER_ADMIN && superAdmins.length === 1 && newRole !== USER_ROLES.SUPER_ADMIN) {
+      alert('🚫 Cannot demote the last Super Admin. Promote another user first.')
+      return
+    }
+    
+    // Security: Only super admins can create other super admins
+    if (newRole === USER_ROLES.SUPER_ADMIN && currentUserRole !== USER_ROLES.SUPER_ADMIN) {
+      alert('🚫 Only Super Admins can promote users to Super Admin.')
+      return
+    }
+    
+    // Confirmation for critical role changes
+    const isDowngrade = getRolePriority(newRole) < getRolePriority(targetUser.role)
+    const confirmMessage = isDowngrade 
+      ? `⚠️ Downgrade ${targetUser.firstName} ${targetUser.lastName} from ${targetUser.role} to ${newRole}?\n\nThis will remove their current permissions.`
+      : `Promote ${targetUser.firstName} ${targetUser.lastName} to ${newRole}?`
+      
+    if (!confirm(confirmMessage)) return
+    
     try {
       const response = await fetch('/api/admin/users/update-role', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, role: newRole })
+        body: JSON.stringify({ 
+          userId, 
+          role: newRole,
+          auditLog: {
+            action: 'role_change',
+            from: targetUser.role,
+            to: newRole,
+            adminId: user?.id,
+            timestamp: new Date().toISOString()
+          }
+        })
       })
       
       if (response.ok) {
         fetchUsers() // Refresh user list
-        alert('User role updated successfully!')
+        alert('✅ User role updated successfully!')
+        logAuditEvent('role_change', `Changed ${targetUser.email} role from ${targetUser.role} to ${newRole}`)
       } else {
-        alert('Failed to update user role')
+        const error = await response.json()
+        alert(`❌ Failed to update user role: ${error.message || 'Unknown error'}`)
       }
     } catch (error) {
       console.error('Error updating user role:', error)
-      alert('Error updating user role')
+      alert('❌ Error updating user role. Please try again.')
     }
   }
 
   const updateSiteAccess = async (userId: string, sitePermissions: string[]) => {
+    const targetUser = users.find(u => u.clerkId === userId)
+    if (!targetUser) return
+    
+    // Validate permissions
+    const invalidPermissions = sitePermissions.filter(perm => !isValidPermission(perm))
+    if (invalidPermissions.length > 0) {
+      alert(`❌ Invalid permissions detected: ${invalidPermissions.join(', ')}`)
+      return
+    }
+    
     try {
       const response = await fetch('/api/admin/users/update-access', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId, siteAccess: sitePermissions })
+        body: JSON.stringify({ 
+          userId, 
+          siteAccess: sitePermissions,
+          auditLog: {
+            action: 'permissions_change',
+            userId: targetUser.id,
+            permissions: sitePermissions,
+            adminId: user?.id,
+            timestamp: new Date().toISOString()
+          }
+        })
       })
       
       if (response.ok) {
         fetchUsers()
         setShowPermissionModal(false)
-        alert('Site access updated successfully!')
+        alert('✅ Site access updated successfully!')
+        logAuditEvent('permissions_change', `Updated permissions for ${targetUser.email}`)
       } else {
-        alert('Failed to update site access')
+        const error = await response.json()
+        alert(`❌ Failed to update site access: ${error.message || 'Unknown error'}`)
       }
     } catch (error) {
       console.error('Error updating site access:', error)
-      alert('Error updating site access')
+      alert('❌ Error updating site access. Please try again.')
     }
   }
 
+  // Helper functions
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
-      case USER_ROLES.SUPER_ADMIN: return 'bg-red-100 text-red-800'
-      case USER_ROLES.ADMIN: return 'bg-purple-100 text-purple-800'
-      case USER_ROLES.PREMIUM: return 'bg-yellow-100 text-yellow-800'
-      case USER_ROLES.STANDARD: return 'bg-blue-100 text-blue-800'
-      default: return 'bg-gray-100 text-gray-800'
+      case USER_ROLES.SUPER_ADMIN: return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+      case USER_ROLES.ADMIN: return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+      case USER_ROLES.PREMIUM: return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+      case USER_ROLES.STANDARD: return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
     }
   }
+  
+  const getRolePriority = (role: string): number => {
+    switch (role) {
+      case USER_ROLES.SUPER_ADMIN: return 5
+      case USER_ROLES.ADMIN: return 4
+      case USER_ROLES.PREMIUM: return 3
+      case USER_ROLES.STANDARD: return 2
+      case USER_ROLES.GUEST: return 1
+      default: return 0
+    }
+  }
+  
+  const isValidPermission = (permission: string): boolean => {
+    // Basic validation - can be expanded
+    if (permission.startsWith('http://')) return false // Require HTTPS
+    if (permission.includes('<script')) return false // Prevent XSS
+    if (permission.length > 200) return false // Reasonable length limit
+    return true
+  }
+  
+  const logAuditEvent = async (action: string, details: string) => {
+    try {
+      await fetch('/api/admin/audit-log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action,
+          details,
+          adminId: user?.id,
+          adminEmail: user?.emailAddresses[0]?.emailAddress,
+          timestamp: new Date().toISOString()
+        })
+      })
+    } catch (error) {
+      console.error('Failed to log audit event:', error)
+    }
+  }
+  
+  // Pagination logic
+  const indexOfLastUser = currentPage * usersPerPage
+  const indexOfFirstUser = indexOfLastUser - usersPerPage
+  const currentUsers = filteredUsers.slice(indexOfFirstUser, indexOfLastUser)
+  const totalPages = Math.ceil(filteredUsers.length / usersPerPage)
+  
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber)
 
   if (!isLoaded || loading) {
     return (
