@@ -298,10 +298,10 @@ export default function DynamicAccessManager() {
               </h3>
               <div className="mt-2 text-sm text-blue-700">
                 <ul className="list-disc list-inside space-y-1">
-                  <li><strong>Domain Access:</strong> Grant access by domain (e.g., "example.com")</li>
-                  <li><strong>App Name Access:</strong> Grant access by app name (e.g., "myapp", "blog")</li>
-                  <li><strong>URL Access:</strong> Grant access to specific URLs (e.g., "https://site.com")</li>
-                  <li><strong>Universal Permissions:</strong> Use "all_sites", "premium_sites", "standard_sites" for broad access</li>
+                  <li><strong>Domain Access:</strong> Grant access by domain (e.g., &quot;example.com&quot;)</li>
+                  <li><strong>App Name Access:</strong> Grant access by app name (e.g., &quot;myapp&quot;, &quot;blog&quot;)</li>
+                  <li><strong>URL Access:</strong> Grant access to specific URLs (e.g., &quot;https://site.com&quot;)</li>
+                  <li><strong>Universal Permissions:</strong> Use &quot;all_sites&quot;, &quot;premium_sites&quot;, &quot;standard_sites&quot; for broad access</li>
                 </ul>
               </div>
             </div>
