@@ -9,66 +9,64 @@ export const USER_ROLES = {
 
 export type UserRole = typeof USER_ROLES[keyof typeof USER_ROLES]
 
-// Site access permissions
+// Universal site access - now supports any URL
 export const SITE_PERMISSIONS = {
-  // Admin sites
-  ADMIN_DASHBOARD: 'admin_dashboard',
-  USER_MANAGEMENT: 'user_management',
-  ANALYTICS: 'analytics',
+  // NitroAuth Admin
+  NITROAUTH_ADMIN: 'nitroauth_admin',
   
-  // Business sites  
-  CRM_SYSTEM: 'crm_system',
-  ACCOUNTING: 'accounting',
-  PROJECT_MGMT: 'project_management',
+  // Universal site access
+  ALL_SITES: 'all_sites',
+  PREMIUM_SITES: 'premium_sites',
+  STANDARD_SITES: 'standard_sites',
   
-  // User sites
-  PROFILE: 'profile',
-  BASIC_TOOLS: 'basic_tools',
-  PREMIUM_TOOLS: 'premium_tools'
+  // Specific sites (examples - can add any URL)
+  HOUSE_ATREIDES: 'https://www.houseatreides.space',
+  ANALYTICS_SITE: 'https://analytics.example.com',
+  CRM_SITE: 'https://crm.example.com',
+  
+  // Custom URLs (admin can add any URL)
+  CUSTOM_URL_1: 'custom_url_1',
+  CUSTOM_URL_2: 'custom_url_2',
+  CUSTOM_URL_3: 'custom_url_3',
+  CUSTOM_URL_4: 'custom_url_4',
+  CUSTOM_URL_5: 'custom_url_5'
 } as const
 
 export type SitePermission = typeof SITE_PERMISSIONS[keyof typeof SITE_PERMISSIONS]
 
-// Role to permissions mapping
+// Role to permissions mapping - now universal
 export const ROLE_PERMISSIONS: Record<UserRole, SitePermission[]> = {
   [USER_ROLES.SUPER_ADMIN]: [
-    SITE_PERMISSIONS.ADMIN_DASHBOARD,
-    SITE_PERMISSIONS.USER_MANAGEMENT,
-    SITE_PERMISSIONS.ANALYTICS,
-    SITE_PERMISSIONS.CRM_SYSTEM,
-    SITE_PERMISSIONS.ACCOUNTING,
-    SITE_PERMISSIONS.PROJECT_MGMT,
-    SITE_PERMISSIONS.PROFILE,
-    SITE_PERMISSIONS.BASIC_TOOLS,
-    SITE_PERMISSIONS.PREMIUM_TOOLS
+    SITE_PERMISSIONS.ALL_SITES,  // Super admin gets access to everything
+    SITE_PERMISSIONS.NITROAUTH_ADMIN
   ],
   
   [USER_ROLES.ADMIN]: [
-    SITE_PERMISSIONS.ADMIN_DASHBOARD,
-    SITE_PERMISSIONS.USER_MANAGEMENT,
-    SITE_PERMISSIONS.CRM_SYSTEM,
-    SITE_PERMISSIONS.PROJECT_MGMT,
-    SITE_PERMISSIONS.PROFILE,
-    SITE_PERMISSIONS.BASIC_TOOLS,
-    SITE_PERMISSIONS.PREMIUM_TOOLS
+    SITE_PERMISSIONS.PREMIUM_SITES,
+    SITE_PERMISSIONS.STANDARD_SITES,
+    SITE_PERMISSIONS.NITROAUTH_ADMIN
   ],
   
   [USER_ROLES.PREMIUM]: [
-    SITE_PERMISSIONS.CRM_SYSTEM,
-    SITE_PERMISSIONS.PROJECT_MGMT,
-    SITE_PERMISSIONS.PROFILE,
-    SITE_PERMISSIONS.BASIC_TOOLS,
-    SITE_PERMISSIONS.PREMIUM_TOOLS
+    SITE_PERMISSIONS.PREMIUM_SITES,
+    SITE_PERMISSIONS.STANDARD_SITES
   ],
   
   [USER_ROLES.STANDARD]: [
-    SITE_PERMISSIONS.PROFILE,
-    SITE_PERMISSIONS.BASIC_TOOLS
+    SITE_PERMISSIONS.STANDARD_SITES
   ],
   
   [USER_ROLES.GUEST]: [
-    SITE_PERMISSIONS.PROFILE
+    // Guests have no default access - must be granted specific URLs
   ]
+}
+
+// URL mapping for sites - admin can configure these
+export const SITE_URL_MAPPING: Record<string, string> = {
+  'houseatreides': 'https://www.houseatreides.space',
+  'analytics': 'https://analytics.example.com',
+  'crm': 'https://crm.example.com',
+  // Add more as needed
 }
 
 // Site URLs mapping

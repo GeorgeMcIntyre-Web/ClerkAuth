@@ -119,8 +119,45 @@ export default function AdminPanel() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">NitroAuth Admin Panel</h1>
-          <p className="text-gray-600 mt-2">Manage users, roles, and site access permissions</p>
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900">NitroAuth Admin Panel</h1>
+              <p className="text-gray-600 mt-2">Manage users, roles, and site access permissions</p>
+            </div>
+            <div className="flex space-x-3">
+              <button
+                onClick={async () => {
+                  try {
+                    const response = await fetch('/api/authorize', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        requestedSite: 'houseatreides',
+                        redirectUrl: 'https://www.houseatreides.space/auth/callback'
+                      })
+                    })
+                    const result = await response.json()
+                    if (result.authorized) {
+                      alert(`✅ ACCESS GRANTED!\n\nUser can access House Atreides!\n\nToken URL: ${result.redirectUrl}`)
+                    } else {
+                      alert(`🔒 ACCESS DENIED\n\nReason: ${result.error}\n\nUser needs PREMIUM_TOOLS permission.`)
+                    }
+                  } catch (error) {
+                    alert(`❌ Test Failed: ${error}`)
+                  }
+                }}
+                className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
+              >
+                🧪 Test House Atreides
+              </button>
+              <a
+                href="/dashboard"
+                className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700"
+              >
+                ← Dashboard
+              </a>
+            </div>
+          </div>
         </div>
 
         {/* Stats Cards */}
@@ -245,30 +282,102 @@ export default function AdminPanel() {
                 Manage Site Access - {selectedUser.firstName} {selectedUser.lastName}
               </h3>
               
-              <div className="grid grid-cols-2 gap-4 max-h-96 overflow-y-auto">
-                {Object.values(SITE_PERMISSIONS).map((permission) => (
-                  <label key={permission} className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={selectedUser.siteAccess?.includes(permission) || false}
-                      onChange={(e) => {
-                        const currentAccess = selectedUser.siteAccess || []
-                        const newAccess = e.target.checked
-                          ? [...currentAccess, permission]
-                          : currentAccess.filter(p => p !== permission)
-                        
+              <div className="space-y-6">
+                {/* Quick Site Access Templates */}
+                <div className="border-b pb-4">
+                  <h4 className="font-medium text-gray-900 mb-3">Quick Access Templates</h4>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => {
                         setSelectedUser({
                           ...selectedUser,
-                          siteAccess: newAccess
+                          siteAccess: [SITE_PERMISSIONS.PREMIUM_CONTENT, SITE_PERMISSIONS.MAIN_DASHBOARD]
                         })
                       }}
-                      className="rounded border-gray-300"
-                    />
-                    <span className="text-sm">
-                      {permission.replace('_', ' ').toUpperCase()}
-                    </span>
-                  </label>
-                ))}
+                      className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-medium hover:bg-yellow-200"
+                    >
+                      🏠 House Atreides Access
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedUser({
+                          ...selectedUser,
+                          siteAccess: [SITE_PERMISSIONS.MAIN_DASHBOARD]
+                        })
+                      }}
+                      className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium hover:bg-blue-200"
+                    >
+                      📊 Basic Dashboard
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedUser({
+                          ...selectedUser,
+                          siteAccess: Object.values(SITE_PERMISSIONS)
+                        })
+                      }}
+                      className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium hover:bg-green-200"
+                    >
+                      🔓 All Access
+                    </button>
+                    <button
+                      onClick={() => {
+                        setSelectedUser({
+                          ...selectedUser,
+                          siteAccess: []
+                        })
+                      }}
+                      className="px-3 py-1 bg-gray-100 text-gray-800 rounded-full text-xs font-medium hover:bg-gray-200"
+                    >
+                      🚫 No Access
+                    </button>
+                  </div>
+                </div>
+
+                {/* Individual Permissions */}
+                <div>
+                  <h4 className="font-medium text-gray-900 mb-3">Individual Site Permissions</h4>
+                  <div className="grid grid-cols-1 gap-3 max-h-64 overflow-y-auto">
+                    {[
+                      { key: SITE_PERMISSIONS.MAIN_DASHBOARD, label: '📊 Main Dashboard', desc: 'Basic dashboard access' },
+                      { key: SITE_PERMISSIONS.PREMIUM_CONTENT, label: '🏠 House Atreides & Premium Sites', desc: 'Access to premium external sites' },
+                      { key: SITE_PERMISSIONS.ANALYTICS, label: '📈 Analytics Dashboard', desc: 'View site analytics and reports' },
+                      { key: SITE_PERMISSIONS.CRM, label: '👥 Customer Management', desc: 'CRM and customer data access' },
+                      { key: SITE_PERMISSIONS.INVENTORY, label: '📦 Inventory Management', desc: 'Product and inventory systems' },
+                      { key: SITE_PERMISSIONS.BILLING, label: '💰 Billing & Payments', desc: 'Financial and billing systems' },
+                      { key: SITE_PERMISSIONS.REPORTS, label: '📋 Advanced Reports', desc: 'Detailed reporting tools' },
+                      { key: SITE_PERMISSIONS.API_ACCESS, label: '🔧 API Access', desc: 'Direct API and developer tools' },
+                      { key: SITE_PERMISSIONS.SUPPORT_TOOLS, label: '🎧 Support Tools', desc: 'Customer support systems' }
+                    ].map((item) => (
+                      <label key={item.key} className="flex items-start space-x-3 p-3 border rounded-lg hover:bg-gray-50">
+                        <input
+                          type="checkbox"
+                          checked={selectedUser.siteAccess?.includes(item.key) || false}
+                          onChange={(e) => {
+                            const currentAccess = selectedUser.siteAccess || []
+                            const newAccess = e.target.checked
+                              ? [...currentAccess, item.key]
+                              : currentAccess.filter(p => p !== item.key)
+                            
+                            setSelectedUser({
+                              ...selectedUser,
+                              siteAccess: newAccess
+                            })
+                          }}
+                          className="mt-1 rounded border-gray-300"
+                        />
+                        <div>
+                          <div className="text-sm font-medium text-gray-900">
+                            {item.label}
+                          </div>
+                          <div className="text-xs text-gray-500">
+                            {item.desc}
+                          </div>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                </div>
               </div>
               
               <div className="flex justify-end space-x-3 mt-6">
