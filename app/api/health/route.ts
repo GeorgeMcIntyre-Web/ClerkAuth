@@ -24,7 +24,8 @@ export async function GET(request: Request) {
         method: 'GET',
         statusCode: 200,
         responseTime,
-        cacheHit: false
+        cacheHit: false,
+        timestamp: new Date().toISOString()
       })
       
       logApi.response('/api/health', 'GET', 200, responseTime)
@@ -49,7 +50,8 @@ export async function GET(request: Request) {
         method: 'GET',
         statusCode: 200,
         responseTime,
-        cacheHit: false
+        cacheHit: false,
+        timestamp: new Date().toISOString()
       })
       
       return NextResponse.json({
@@ -73,7 +75,8 @@ export async function GET(request: Request) {
       method: 'GET',
       statusCode: 500,
       responseTime,
-      cacheHit: false
+      cacheHit: false,
+      timestamp: new Date().toISOString()
     })
     
     logApi.response('/api/health', 'GET', 500, responseTime)

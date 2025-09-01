@@ -402,7 +402,7 @@ class MonitoringService {
     if (performanceMetrics.avgResponseTime > 3000) {
       alerts.push({
         type: 'high_response_time',
-        severity: performanceMetrics.avgResponseTime > 5000 ? 'critical' : 'high',
+        severity: (performanceMetrics.avgResponseTime > 5000 ? 'critical' : 'high') as 'critical' | 'high',
         message: `Average response time is ${performanceMetrics.avgResponseTime}ms`,
         value: performanceMetrics.avgResponseTime,
         threshold: 3000
@@ -412,7 +412,7 @@ class MonitoringService {
     if (performanceMetrics.errorRate > 10) {
       alerts.push({
         type: 'high_error_rate',
-        severity: performanceMetrics.errorRate > 25 ? 'critical' : 'high',
+        severity: (performanceMetrics.errorRate > 25 ? 'critical' : 'high') as 'critical' | 'high',
         message: `Error rate is ${performanceMetrics.errorRate}%`,
         value: performanceMetrics.errorRate,
         threshold: 10
@@ -423,7 +423,7 @@ class MonitoringService {
     if (securitySummary.criticalEvents > 5) {
       alerts.push({
         type: 'security_events',
-        severity: 'critical',
+        severity: 'critical' as 'critical',
         message: `${securitySummary.criticalEvents} critical security events in the last 24 hours`,
         value: securitySummary.criticalEvents,
         threshold: 5
@@ -438,7 +438,7 @@ class MonitoringService {
     if (failureRate > 50) {
       alerts.push({
         type: 'auth_failure_rate',
-        severity: 'high',
+        severity: 'high' as 'high',
         message: `Authentication failure rate is ${Math.round(failureRate)}%`,
         value: Math.round(failureRate),
         threshold: 50

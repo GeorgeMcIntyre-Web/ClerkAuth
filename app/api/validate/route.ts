@@ -61,12 +61,16 @@ export async function POST(req: Request) {
       let currentRole: string
       let currentSiteAccess: string[]
       let permissions: Record<string, boolean> = {}
+      let user: any // Store user data for response
       
       if (cachedValidation && Date.now() - cachedValidation.timestamp < 300000) { // 5 minutes
         // Use cached data
         currentRole = cachedValidation.role
         currentSiteAccess = cachedValidation.siteAccess
         permissions = cachedValidation.permissions
+        
+        // Still need to fetch basic user info for response
+        user = await clerkClient.users.getUser(user_id)
         
         log.debug({
           message: 'Using cached user validation data',
@@ -76,7 +80,7 @@ export async function POST(req: Request) {
         })
       } else {
         // Fetch fresh data from Clerk
-        const user = await clerkClient.users.getUser(user_id)
+        user = await clerkClient.users.getUser(user_id)
         currentRole = (user.publicMetadata?.role as string) || 'GUEST'
         currentSiteAccess = (user.publicMetadata?.siteAccess as string[]) || []
         

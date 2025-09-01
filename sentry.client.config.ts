@@ -4,11 +4,12 @@ Sentry.init({
   dsn: process.env.SENTRY_DSN,
   
   // Performance Monitoring
-  tracesSampleRate: 1.0,
+  tracesSampleRate: process.env.NODE_ENV === 'production' ? 0.1 : 1.0,
   
-  // Session Replay
-  replaysSessionSampleRate: 0.1,
-  replaysOnErrorSampleRate: 1.0,
+  // Session Replay (if available in your version)
+  // Uncomment if using Sentry 7.60.0 or later
+  // replaysSessionSampleRate: 0.1,
+  // replaysOnErrorSampleRate: 1.0,
   
   // Environment
   environment: process.env.NODE_ENV || 'development',
@@ -16,12 +17,8 @@ Sentry.init({
   // Release tracking
   release: process.env.VERCEL_GIT_COMMIT_SHA || 'development',
   
-  integrations: [
-    new Sentry.Replay({
-      maskAllText: true,
-      blockAllMedia: true,
-    }),
-  ],
+  // Integrations are automatically included in Next.js SDK
+  integrations: [],
   
   // Filter out non-critical errors
   beforeSend(event, hint) {
