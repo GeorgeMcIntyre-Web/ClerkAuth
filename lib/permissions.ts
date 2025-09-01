@@ -37,21 +37,25 @@ export function getDefaultRedirect(userRole: UserRole): string {
 }
 
 /**
- * Generate authenticated redirect URL with token
+ * Generate authenticated redirect URL with secure JWT token
  */
 export function generateAuthRedirect(targetUrl: string, userId: string, userRole: UserRole): string {
-  const authToken = Buffer.from(JSON.stringify({
-    userId,
-    role: userRole,
-    timestamp: Date.now(),
-    // Add signature/validation if needed
-  })).toString('base64')
+  // Import JWT functions
+  const { generateAuthToken } = require('./jwt')
   
-  const url = new URL(targetUrl)
-  url.searchParams.set('auth_token', authToken)
-  url.searchParams.set('source', 'nitroauth')
-  
-  return url.toString()
+  try {
+    const authToken = generateAuthToken(userId, userRole)
+    
+    const url = new URL(targetUrl)
+    url.searchParams.set('auth_token', authToken)
+    url.searchParams.set('source', 'nitroauth')
+    url.searchParams.set('timestamp', Date.now().toString())
+    
+    return url.toString()
+  } catch (error) {
+    console.error('Failed to generate auth token:', error)
+    throw new Error('Authentication token generation failed')
+  }
 }
 
 /**
