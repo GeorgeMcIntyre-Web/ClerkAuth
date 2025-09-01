@@ -125,31 +125,12 @@ export default function AdminPanel() {
               <p className="text-gray-600 mt-2">Manage users, roles, and site access permissions</p>
             </div>
             <div className="flex space-x-3">
-              <button
-                onClick={async () => {
-                  try {
-                    const response = await fetch('/api/authorize', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        requestedSite: 'houseatreides',
-                        redirectUrl: 'https://www.houseatreides.space/auth/callback'
-                      })
-                    })
-                    const result = await response.json()
-                    if (result.authorized) {
-                      alert(`✅ ACCESS GRANTED!\n\nUser can access House Atreides!\n\nToken URL: ${result.redirectUrl}`)
-                    } else {
-                      alert(`🔒 ACCESS DENIED\n\nReason: ${result.error}\n\nUser needs PREMIUM_TOOLS permission.`)
-                    }
-                  } catch (error) {
-                    alert(`❌ Test Failed: ${error}`)
-                  }
-                }}
+              <a
+                href="/admin/access"
                 className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
               >
-                🧪 Test House Atreides
-              </button>
+                🌐 Universal Access
+              </a>
               <a
                 href="/dashboard"
                 className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700"
