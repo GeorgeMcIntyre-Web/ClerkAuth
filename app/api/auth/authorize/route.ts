@@ -4,6 +4,7 @@ import { USER_ROLES } from '@/lib/auth-config'
 import { generateAuthToken } from '@/lib/jwt'
 import { validateUserId, sanitizeString } from '@/lib/validation'
 import { withRateLimit, rateLimitConfigs, getClientIP } from '@/lib/rate-limit'
+import { logSecurity } from '@/lib/logger'
 
 export async function POST(req: Request) {
   const clientIP = getClientIP(req)
@@ -46,8 +47,14 @@ export async function POST(req: Request) {
     const hasAccess = checkUniversalSiteAccess(sanitizedSite, userRole, userSiteAccess, sanitizedRedirectUrl)
 
     if (!hasAccess) {
-      // Log unauthorized access attempt with site details
-      console.log(`SECURITY: Access denied for ${user.emailAddresses[0]?.emailAddress} (${userId}) to site: ${sanitizedSite} (${sanitizedRedirectUrl})`)
+      // Log unauthorized access attempt with structured logging
+      logSecurity.unauthorizedAccess(
+        userId,
+        user.emailAddresses[0]?.emailAddress || '',
+        clientIP,
+        '/api/auth/authorize',
+        sanitizedSite
+      )
       
       return NextResponse.json({ 
         authorized: false, 
@@ -70,7 +77,12 @@ export async function POST(req: Request) {
     authorizedUrl.searchParams.set('timestamp', Date.now().toString())
 
     // Log successful authorization
-    console.log(`AUTH SUCCESS: User ${user.emailAddresses[0]?.emailAddress} (${userId}) authorized for: ${sanitizedSite} → ${sanitizedRedirectUrl}`)
+    logSecurity.authSuccess(
+      userId,
+      user.emailAddresses[0]?.emailAddress || '',
+      clientIP,
+      sanitizedSite
+    )
 
     return NextResponse.json({
       authorized: true,

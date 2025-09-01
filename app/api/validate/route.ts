@@ -3,11 +3,15 @@ import { verifyAuthToken, isTokenExpired } from '@/lib/jwt'
 import { clerkClient } from '@clerk/nextjs/server'
 import { USER_ROLES } from '@/lib/auth-config'
 import { withRateLimit, rateLimitConfigs, getClientIP } from '@/lib/rate-limit'
+import { cache, withCache } from '@/lib/cache'
+import { log, logApi, LogCategory } from '@/lib/logger'
 
 export async function POST(req: Request) {
   const clientIP = getClientIP(req)
   
   return withRateLimit(rateLimitConfigs.validate, clientIP, async () => {
+  const startTime = Date.now()
+  
   try {
     const body = await req.json()
     const { auth_token, user_id, siteId, requestedPermissions } = body
@@ -49,14 +53,52 @@ export async function POST(req: Request) {
       }, { status: 401 })
     }
 
-    // Get fresh user data from Clerk to ensure current permissions
+    // Get user data with caching to improve performance
     try {
-      const user = await clerkClient.users.getUser(user_id)
-      const currentRole = (user.publicMetadata?.role as string) || 'GUEST'
-      const currentSiteAccess = (user.publicMetadata?.siteAccess as string[]) || []
-
-      // Generate fine-grained permissions if siteId provided
-      const permissions = siteId ? generateDetailedPermissions(siteId, currentRole, currentSiteAccess) : {}
+      // Try to get cached user validation data first
+      const cachedValidation = await cache.getUserValidation(user_id)
+      
+      let currentRole: string
+      let currentSiteAccess: string[]
+      let permissions: Record<string, boolean> = {}
+      
+      if (cachedValidation && Date.now() - cachedValidation.timestamp < 300000) { // 5 minutes
+        // Use cached data
+        currentRole = cachedValidation.role
+        currentSiteAccess = cachedValidation.siteAccess
+        permissions = cachedValidation.permissions
+        
+        log.debug({
+          message: 'Using cached user validation data',
+          category: LogCategory.API,
+          userId: user_id,
+          metadata: { siteId, cacheHit: true }
+        })
+      } else {
+        // Fetch fresh data from Clerk
+        const user = await clerkClient.users.getUser(user_id)
+        currentRole = (user.publicMetadata?.role as string) || 'GUEST'
+        currentSiteAccess = (user.publicMetadata?.siteAccess as string[]) || []
+        
+        // Generate fine-grained permissions if siteId provided
+        permissions = siteId ? generateDetailedPermissions(siteId, currentRole, currentSiteAccess) : {}
+        
+        // Cache the validation data
+        await cache.setUserValidation(user_id, {
+          valid: true,
+          role: currentRole,
+          siteAccess: currentSiteAccess,
+          permissions,
+          timestamp: Date.now()
+        })
+        
+        log.debug({
+          message: 'Fetched and cached fresh user validation data',
+          category: LogCategory.API,
+          userId: user_id,
+          metadata: { siteId, cacheHit: false }
+        })
+      }
       
       // Check specific permissions if requested
       let permissionResults = {}
