@@ -291,7 +291,7 @@ export default function SitesAdmin() {
                     value={newSite.name}
                     onChange={(e) => setNewSite({...newSite, name: e.target.value})}
                     className="w-full border rounded-md px-3 py-2"
-                    placeholder="House Atreides"
+                    placeholder="My Awesome Site"
                   />
                 </div>
                 
@@ -302,7 +302,7 @@ export default function SitesAdmin() {
                     value={newSite.url}
                     onChange={(e) => setNewSite({...newSite, url: e.target.value})}
                     className="w-full border rounded-md px-3 py-2"
-                    placeholder="https://www.houseatreides.space"
+                    placeholder="https://www.myawesomesite.com"
                   />
                 </div>
                 

@@ -38,7 +38,7 @@
 - [ ] **Token Generation**: JWT tokens created correctly
 
 ### 5. Integration Testing
-- [ ] **Test Authorization**: `/api/authorize` endpoint
+- [ ] **Test Authorization**: `/api/auth/authorize` endpoint
 - [ ] **Test Validation**: `/api/validate` endpoint
 - [ ] **External Site**: Test with sample integration
 
@@ -117,7 +117,7 @@ NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/dashboard
 ### Quick Test:
 ```javascript
 // Test in browser console
-fetch('/api/authorize', {
+fetch('/api/auth/authorize', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({

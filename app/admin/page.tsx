@@ -17,9 +17,22 @@ interface UserData {
   siteAccess: string[]
 }
 
+interface PaginatedResponse {
+  users: UserData[]
+  pagination: {
+    currentPage: number
+    totalPages: number
+    totalUsers: number
+    limit: number
+    hasNextPage: boolean
+    hasPreviousPage: boolean
+  }
+}
+
 export default function AdminPanel() {
   const { user, isLoaded } = useUser()
   const [users, setUsers] = useState<UserData[]>([])
+  const [allUsers, setAllUsers] = useState<UserData[]>([])
   const [filteredUsers, setFilteredUsers] = useState<UserData[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedUser, setSelectedUser] = useState<UserData | null>(null)
@@ -27,7 +40,15 @@ export default function AdminPanel() {
   const [searchTerm, setSearchTerm] = useState('')
   const [roleFilter, setRoleFilter] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  const [usersPerPage] = useState(10)
+  const [usersPerPage] = useState(20)
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalUsers: 0,
+    limit: 20,
+    hasNextPage: false,
+    hasPreviousPage: false
+  })
   const [showAuditLog, setShowAuditLog] = useState(false)
 
   // Check if current user is admin
@@ -40,18 +61,25 @@ export default function AdminPanel() {
     }
   }, [isLoaded, user])
 
-  // Fetch all users
+  // Fetch users with pagination
   useEffect(() => {
-    fetchUsers()
+    fetchUsers(currentPage)
+  }, [currentPage])
+
+  // Fetch all users for stats and filtering
+  useEffect(() => {
+    fetchAllUsersForStats()
   }, [])
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (page: number = 1, limit: number = 20) => {
     try {
-      const response = await fetch('/api/admin/users')
+      setLoading(true)
+      const response = await fetch(`/api/admin/users?page=${page}&limit=${limit}`)
       if (response.ok) {
-        const userData = await response.json()
-        setUsers(userData)
-        setFilteredUsers(userData)
+        const data: PaginatedResponse = await response.json()
+        setUsers(data.users)
+        setPagination(data.pagination)
+        setFilteredUsers(data.users)
       }
     } catch (error) {
       console.error('Failed to fetch users:', error)
@@ -60,7 +88,20 @@ export default function AdminPanel() {
     }
   }
 
-  // Filter and search users
+  const fetchAllUsersForStats = async () => {
+    try {
+      // Fetch with a larger limit for stats calculation
+      const response = await fetch('/api/admin/users?page=1&limit=1000')
+      if (response.ok) {
+        const data: PaginatedResponse = await response.json()
+        setAllUsers(data.users)
+      }
+    } catch (error) {
+      console.error('Failed to fetch all users for stats:', error)
+    }
+  }
+
+  // Client-side filtering for search and role filter
   useEffect(() => {
     let filtered = users
     
@@ -78,7 +119,6 @@ export default function AdminPanel() {
     }
     
     setFilteredUsers(filtered)
-    setCurrentPage(1) // Reset to first page when filters change
   }, [users, searchTerm, roleFilter])
 
   const updateUserRole = async (userId: string, newRole: string) => {
@@ -133,7 +173,8 @@ export default function AdminPanel() {
       })
       
       if (response.ok) {
-        fetchUsers() // Refresh user list
+        fetchUsers(currentPage, usersPerPage) // Refresh current page
+        fetchAllUsersForStats() // Refresh stats
         alert('✅ User role updated successfully!')
         logAuditEvent('role_change', `Changed ${targetUser.email} role from ${targetUser.role} to ${newRole}`)
       } else {
@@ -175,7 +216,8 @@ export default function AdminPanel() {
       })
       
       if (response.ok) {
-        fetchUsers()
+        fetchUsers(currentPage, usersPerPage) // Refresh current page
+        fetchAllUsersForStats() // Refresh stats
         setShowPermissionModal(false)
         alert('✅ Site access updated successfully!')
         logAuditEvent('permissions_change', `Updated permissions for ${targetUser.email}`)
@@ -284,32 +326,72 @@ export default function AdminPanel() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
             <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Users</h3>
-            <p className="text-3xl font-bold text-blue-600">{users.length}</p>
+            <p className="text-3xl font-bold text-blue-600">{pagination.totalUsers}</p>
           </div>
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
             <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Admins</h3>
             <p className="text-3xl font-bold text-purple-600">
-              {users.filter(u => u.role === USER_ROLES.ADMIN || u.role === USER_ROLES.SUPER_ADMIN).length}
+              {allUsers.filter(u => u.role === USER_ROLES.ADMIN || u.role === USER_ROLES.SUPER_ADMIN).length}
             </p>
           </div>
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
             <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Premium Users</h3>
             <p className="text-3xl font-bold text-yellow-600">
-              {users.filter(u => u.role === USER_ROLES.PREMIUM).length}
+              {allUsers.filter(u => u.role === USER_ROLES.PREMIUM).length}
             </p>
           </div>
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
             <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Standard Users</h3>
             <p className="text-3xl font-bold text-green-600">
-              {users.filter(u => u.role === USER_ROLES.STANDARD).length}
+              {allUsers.filter(u => u.role === USER_ROLES.STANDARD).length}
             </p>
           </div>
         </div>
 
+          {/* Search and Filter Controls */}
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow mb-6">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1">
+                <input
+                  type="text"
+                  placeholder="Search users by name or email..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+              <div className="md:w-48">
+                <select
+                  value={roleFilter}
+                  onChange={(e) => setRoleFilter(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                >
+                  <option value="">All Roles</option>
+                  {Object.values(USER_ROLES).map((role) => (
+                    <option key={role} value={role}>
+                      {role.replace('_', ' ').toUpperCase()}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <button
+                onClick={() => fetchUsers(currentPage, usersPerPage)}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+              >
+                Refresh
+              </button>
+            </div>
+          </div>
+
           {/* Users Table */}
           <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">All Users</h2>
+              <div className="flex justify-between items-center">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">All Users</h2>
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  Showing {users.length} of {pagination.totalUsers} users
+                </div>
+              </div>
             </div>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -333,8 +415,8 @@ export default function AdminPanel() {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {users.map((userData) => (
-                  <tr key={userData.id}>
+                {filteredUsers.map((userData) => (
+                  <tr key={userData.clerkId}>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
                         <div className="text-sm font-medium text-gray-900">
@@ -392,7 +474,51 @@ export default function AdminPanel() {
               </tbody>
             </table>
           </div>
-        </div>
+            
+            {/* Pagination Controls */}
+            <div className="bg-white dark:bg-gray-800 px-6 py-4 border-t border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-gray-500 dark:text-gray-400">
+                  Page {pagination.currentPage} of {pagination.totalPages}
+                </div>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                    disabled={!pagination.hasPreviousPage}
+                    className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-white"
+                  >
+                    Previous
+                  </button>
+                  
+                  {/* Page Numbers */}
+                  {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+                    const pageNum = Math.max(1, Math.min(pagination.totalPages, currentPage - 2 + i))
+                    return (
+                      <button
+                        key={pageNum}
+                        onClick={() => setCurrentPage(pageNum)}
+                        className={`px-3 py-1 border rounded-md text-sm ${
+                          pageNum === currentPage
+                            ? 'bg-blue-600 text-white border-blue-600'
+                            : 'border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-white'
+                        }`}
+                      >
+                        {pageNum}
+                      </button>
+                    )
+                  })}
+                  
+                  <button
+                    onClick={() => setCurrentPage(Math.min(pagination.totalPages, currentPage + 1))}
+                    disabled={!pagination.hasNextPage}
+                    className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded-md text-sm disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-700 dark:text-white"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
 
         {/* Permission Modal */}
         {showPermissionModal && selectedUser && (

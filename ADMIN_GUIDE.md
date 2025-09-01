@@ -80,7 +80,7 @@ When you want to add a new external site (like another website):
 
 1. The new site should redirect users to: `https://nitroauth.com/authorize?site=SITENAME&redirect_url=CALLBACK_URL`
 2. In the admin panel, grant users the appropriate permissions
-3. The site permissions map automatically based on the site name or you can modify the mapping in `/app/api/authorize/route.ts`
+3. The site permissions map automatically based on the site name or you can modify the mapping in `/app/api/auth/authorize/route.ts`
 
 ### Security Notes:
 

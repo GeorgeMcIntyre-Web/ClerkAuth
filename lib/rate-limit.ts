@@ -29,7 +29,8 @@ export const rateLimitConfigs = {
   auth: { requests: 10, windowMs: 60000 }, // 10 requests per minute
   validate: { requests: 100, windowMs: 60000 }, // 100 requests per minute  
   admin: { requests: 30, windowMs: 60000 }, // 30 requests per minute
-  setup: { requests: 1, windowMs: 3600000 }, // 1 request per hour
+  setup: { requests: 1, windowMs: 3600000 }, // 1 request per hour (legacy)
+  setupStrict: { requests: 1, windowMs: 86400000 }, // 1 request per day (24 hours) for admin setup
 }
 
 // Helper function to get client IP

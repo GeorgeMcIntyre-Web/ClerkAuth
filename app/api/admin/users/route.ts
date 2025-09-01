@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     // Parse pagination parameters from query
     const { searchParams } = new URL(request.url)
     const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10))
-    const limit = Math.max(1, Math.min(100, parseInt(searchParams.get('limit') || '25', 10))) // Max 100, default 25
+    const limit = Math.max(1, Math.min(100, parseInt(searchParams.get('limit') || '20', 10))) // Max 100, default 20
     const offset = (page - 1) * limit
 
     // Get users from Clerk with pagination

@@ -19,7 +19,7 @@ NitroAuth is a centralized authentication hub that provides secure, token-based 
 ## Core Components
 
 ### 1. Authentication Flow
-- **Entry Point**: `/api/authorize` - Handles authorization requests from external sites
+- **Entry Point**: `/api/auth/authorize` - Handles authorization requests from external sites
 - **Validation**: `/api/validate` - Validates JWT tokens for external sites
 - **Admin Panel**: `/admin` - User and site management interface
 
@@ -112,7 +112,7 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 ### Authorization Endpoint
 ```http
-POST /api/authorize
+POST /api/auth/authorize
 Content-Type: application/json
 
 {

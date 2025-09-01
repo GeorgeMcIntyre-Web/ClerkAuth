@@ -130,7 +130,7 @@ ClerkAuth works with **any technology stack**:
 
 ### Authorization
 ```http
-POST https://clerkauth.com/api/authorize
+POST https://clerkauth.com/api/auth/authorize
 {
   "requestedSite": "myapp",
   "redirectUrl": "https://myapp.com/callback"

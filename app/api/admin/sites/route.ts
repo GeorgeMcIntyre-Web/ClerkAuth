@@ -83,6 +83,75 @@ export async function POST(request: NextRequest) {
   }
 }
 
+export async function PUT(request: NextRequest) {
+  try {
+    const { userId } = auth()
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const currentUser = await clerkClient.users.getUser(userId)
+    const currentUserRole = currentUser.publicMetadata?.role as string
+    
+    if (currentUserRole !== USER_ROLES.ADMIN && currentUserRole !== USER_ROLES.SUPER_ADMIN) {
+      return NextResponse.json({ error: 'Admin access required' }, { status: 403 })
+    }
+
+    const { searchParams } = new URL(request.url)
+    const siteId = searchParams.get('id')
+
+    if (!siteId) {
+      return NextResponse.json({ error: 'Site ID required' }, { status: 400 })
+    }
+
+    const body = await request.json()
+    
+    // Validate input using Zod schema (excluding id field for updates)
+    const updateSchema = insertSiteSchema.partial().omit({ id: true, createdAt: true })
+    const validationResult = updateSchema.safeParse(body)
+    if (!validationResult.success) {
+      return NextResponse.json({ error: 'Invalid input data', details: validationResult.error.errors }, { status: 400 })
+    }
+
+    const updateData = validationResult.data
+
+    // Validate URL format if provided
+    if (updateData.url) {
+      try {
+        new URL(updateData.url)
+      } catch {
+        return NextResponse.json({ error: 'Invalid URL format' }, { status: 400 })
+      }
+
+      // Check if URL already exists (excluding current site)
+      const existingSite = await db().select().from(sites).where(eq(sites.url, updateData.url)).limit(1)
+      if (existingSite.length > 0 && existingSite[0].id !== siteId) {
+        return NextResponse.json({ error: 'Site URL already exists' }, { status: 400 })
+      }
+    }
+
+    // Check if site exists
+    const [currentSite] = await db().select().from(sites).where(eq(sites.id, siteId)).limit(1)
+    if (!currentSite) {
+      return NextResponse.json({ error: 'Site not found' }, { status: 404 })
+    }
+
+    // Update site in database
+    const [updatedSite] = await db().update(sites).set({
+      ...updateData,
+      updatedAt: new Date()
+    }).where(eq(sites.id, siteId)).returning()
+
+    // Log the update
+    console.log(`ADMIN ACTION: Site "${updatedSite.name}" (${updatedSite.url}) updated by ${currentUser.emailAddresses[0]?.emailAddress}`)
+
+    return NextResponse.json({ success: true, site: updatedSite })
+  } catch (error) {
+    console.error('Error updating site:', error)
+    return NextResponse.json({ error: 'Failed to update site' }, { status: 500 })
+  }
+}
+
 export async function DELETE(request: NextRequest) {
   try {
     const { userId } = auth()

@@ -30,7 +30,7 @@ export default function AuthorizePage() {
 
     try {
       // Call authorization API
-      const response = await fetch('/api/authorize', {
+      const response = await fetch('/api/auth/authorize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
