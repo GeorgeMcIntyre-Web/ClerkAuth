@@ -188,6 +188,79 @@ function hasPermission(user: PermissionContext, permission: FineGrainedPermissio
 }
 
 /**
+ * Generate fine-grained permissions based on user context and site configuration
+ */
+function generateFineGrainedPermissions(user: PermissionContext, siteConfig: ExternalSiteConfig): FineGrainedPermission[] {
+  const permissions: FineGrainedPermission[] = []
+  
+  // Role-based permission mapping
+  const roleHierarchy = {
+    'super_admin': 5,
+    'admin': 4,
+    'premium': 3,
+    'standard': 2,
+    'guest': 1
+  }
+  
+  const userRoleLevel = roleHierarchy[user.role as keyof typeof roleHierarchy] || 1
+  
+  // Generate permissions based on site configuration
+  siteConfig.permissions.forEach(permission => {
+    // Check if user has sufficient role level for this action
+    let hasPermission = false
+    
+    switch (permission.action) {
+      case 'read':
+        hasPermission = userRoleLevel >= 1
+        break
+      case 'write':
+        hasPermission = userRoleLevel >= 2
+        break
+      case 'delete':
+        hasPermission = userRoleLevel >= 3
+        break
+      case 'admin':
+        hasPermission = userRoleLevel >= 4
+        break
+      default:
+        hasPermission = userRoleLevel >= 2
+    }
+    
+    // Apply scope restrictions
+    if (hasPermission && permission.scope) {
+      switch (permission.scope) {
+        case 'own':
+          hasPermission = true // User can always access their own resources
+          break
+        case 'team':
+          hasPermission = userRoleLevel >= 2
+          break
+        case 'department':
+          hasPermission = userRoleLevel >= 3
+          break
+        case 'all':
+          hasPermission = userRoleLevel >= 4
+          break
+      }
+    }
+    
+    // Only add permissions that are granted
+    if (hasPermission) {
+      permissions.push(permission)
+    }
+  })
+  
+  // Add some default permissions based on role
+  if (userRoleLevel >= 1) {
+    permissions.push({ resource: 'profile', action: 'read' })
+    permissions.push({ resource: 'profile', action: 'write' })
+    permissions.push({ resource: 'dashboard', action: 'read' })
+  }
+  
+  return permissions
+}
+
+/**
  * Helper functions (would be implemented with actual database calls)
  */
 async function getUserPermissionContext(userId: string): Promise<PermissionContext | null> {

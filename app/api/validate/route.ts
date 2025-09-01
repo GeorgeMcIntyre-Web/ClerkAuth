@@ -203,7 +203,7 @@ function generateDetailedPermissions(siteId: string, userRole: string, siteAcces
   }
 
   // Start with role-based permissions
-  const userRolePermissions = rolePermissions[userRole] || rolePermissions[USER_ROLES.GUEST]
+  const userRolePermissions = rolePermissions[userRole as keyof typeof rolePermissions] || rolePermissions[USER_ROLES.GUEST]
   Object.assign(permissions, userRolePermissions)
 
   // Apply site-specific access enhancements
