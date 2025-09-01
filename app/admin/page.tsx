@@ -2,6 +2,7 @@
 
 import { useUser } from '@clerk/nextjs'
 import { useEffect, useState } from 'react'
+import { Navigation } from '@/components/navigation'
 import { USER_ROLES, SITE_PERMISSIONS } from '@/lib/auth-config'
 
 interface UserData {
@@ -115,40 +116,37 @@ export default function AdminPanel() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">NitroAuth Admin Panel</h1>
-              <p className="text-gray-600 mt-2">Manage users, roles, and site access permissions</p>
-            </div>
-            <div className="flex space-x-3">
-              <a
-                href="/admin/access"
-                className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
-              >
-                🌐 Universal Access
-              </a>
-              <a
-                href="/dashboard"
-                className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700"
-              >
-                ← Dashboard
-              </a>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <Navigation currentPage="admin" />
+      
+      <div className="py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Header */}
+          <div className="mb-8">
+            <div className="flex justify-between items-center">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 dark:text-white">NitroAuth Admin Panel</h1>
+                <p className="text-gray-600 dark:text-gray-400 mt-2">Manage users, roles, and site access permissions</p>
+              </div>
+              <div className="flex space-x-3">
+                <a
+                  href="/dashboard"
+                  className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md transition-colors"
+                >
+                  ← Dashboard
+                </a>
+              </div>
             </div>
           </div>
-        </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-sm font-medium text-gray-500">Total Users</h3>
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Users</h3>
             <p className="text-3xl font-bold text-blue-600">{users.length}</p>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow">
-            <h3 className="text-sm font-medium text-gray-500">Admins</h3>
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+            <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Admins</h3>
             <p className="text-3xl font-bold text-purple-600">
               {users.filter(u => u.role === USER_ROLES.ADMIN || u.role === USER_ROLES.SUPER_ADMIN).length}
             </p>

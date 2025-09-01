@@ -2,6 +2,7 @@
 
 import { useUser } from '@clerk/nextjs'
 import { useEffect, useState } from 'react'
+import { Navigation } from '@/components/navigation'
 import { USER_ROLES } from '@/lib/auth-config'
 
 interface User {
@@ -111,44 +112,41 @@ export default function DynamicAccessManager() {
 
   if (!isLoaded || loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-          <p className="mt-4 text-gray-600">Loading access manager...</p>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading access manager...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Universal Access Manager</h1>
-              <p className="text-gray-600 mt-2">Grant access to any application dynamically</p>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <Navigation currentPage="access" />
+      
+      <div className="py-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Header */}
+          <div className="mb-8">
+            <div className="flex justify-between items-center">
+              <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Universal Access Manager</h1>
+              <p className="text-gray-600 dark:text-gray-400 mt-2">Grant access to any application dynamically</p>
             </div>
-            <a
-              href="/admin"
-              className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700"
-            >
-              ← Back to Admin
-            </a>
           </div>
         </div>
 
         {/* Quick Grant Access Form */}
-        <div className="bg-white shadow rounded-lg p-6 mb-8">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Grant New Site Access</h2>
+        <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6 mb-8">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Grant New Site Access</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Select User</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Select User</label>
               <select
                 value={selectedUserId}
                 onChange={(e) => setSelectedUserId(e.target.value)}
-                className="w-full border rounded-md px-3 py-2"
+                className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
               >
                 <option value="">Choose user...</option>
                 {users.map(user => (
@@ -159,13 +157,13 @@ export default function DynamicAccessManager() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Site/URL/Permission</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Site/URL/Permission</label>
               <input
                 type="text"
                 value={newPermission}
                 onChange={(e) => setNewPermission(e.target.value)}
                 placeholder="example.com, myapp, https://site.com, etc."
-                className="w-full border rounded-md px-3 py-2"
+                className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
               />
             </div>
             <div className="flex items-end">
