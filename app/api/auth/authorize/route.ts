@@ -204,5 +204,5 @@ function getRequiredPermissions(siteName: string, redirectUrl: string): string[]
     }
   })
   
-  return [...new Set(suggestions)] // Remove duplicates
+  return Array.from(new Set(suggestions)) // Remove duplicates
 }
