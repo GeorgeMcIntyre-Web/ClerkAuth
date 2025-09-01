@@ -3,7 +3,6 @@ import { redirect } from 'next/navigation'
 import { UserButton } from '@clerk/nextjs'
 import Link from 'next/link'
 import { USER_ROLES } from '@/lib/auth-config'
-import SetupButton from './SetupButton'
 
 export default async function Dashboard() {
   const { userId } = auth()
@@ -150,11 +149,10 @@ export default async function Dashboard() {
           <div className="mt-8 bg-yellow-50 border-l-4 border-yellow-400 p-4">
             <div className="flex">
               <div className="ml-3">
-                <p className="text-sm text-yellow-800 mb-3">
-                  <strong>First time setup?</strong> Click the button below to make yourself Super Admin,
-                  then refresh this page to access the Admin Panel.
+                <p className="text-sm text-yellow-800">
+                  <strong>First time setup?</strong> Visit <a href="/setup-admin" className="text-blue-600 hover:text-blue-800 underline">/setup-admin</a> to make yourself Super Admin,
+                  then return to this dashboard to access the Admin Panel.
                 </p>
-                <SetupButton />
               </div>
             </div>
           </div>
