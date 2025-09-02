@@ -116,6 +116,9 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 - **Testing**: Always test locally before pushing
 - **Documentation**: Keep this file updated with major changes
 
+## Known Issues
+- **Vercel GitHub Integration for Tournament Manager**: Auto-deployment from GitHub pushes not triggering. Manual deployment via Vercel dashboard or CLI required. Root directory is correctly set to `workspace/web`, but webhook connection appears broken. Requires manual reconnection of GitHub repo in Vercel settings.
+
 ## Future Tasks
 - [ ] Re-enable ESLint and TypeScript checks in build
 - [ ] Investigate build timeout root cause
